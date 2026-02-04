@@ -1084,11 +1084,11 @@
     <script>
         // Backend Configuration - Auto-detect or use custom
         // Change this after deploying to Railway:
-        const DEPLOYED_BACKEND_URL = 'wavy-backend-production.up.railway.app'; // e.g., 'https://wavy-backend-production.up.railway.app'
+        const DEPLOYED_BACKEND_URL = 'https://wavy-backend-production.up.railway.app'; // e.g., 'https://wavy-backend-production.up.railway.app'
         const LOCAL_BACKEND_URL = 'http://localhost:3000';
         
         // Smart detection: try deployed first, fallback to local
-        let BACKEND_URL = DEPLOYED_BACKEND_URL !== 'wavy-backend-production.up.railway.app' 
+        let BACKEND_URL = DEPLOYED_BACKEND_URL !== 'https://wavy-backend-production.up.railway.app' 
             ? DEPLOYED_BACKEND_URL 
             : LOCAL_BACKEND_URL;
         
@@ -1099,7 +1099,7 @@
         // Check backend connection and auto-switch if needed
         async function checkBackendConnection() {
             // Try deployed URL first if configured
-            if (DEPLOYED_BACKEND_URL !== 'wavy-backend-production.up.railway.app') {
+            if (DEPLOYED_BACKEND_URL !== 'https://wavy-backend-production.up.railway.app') {
                 try {
                     const response = await fetch(`${DEPLOYED_BACKEND_URL}/api/health`, {
                         signal: AbortSignal.timeout(3000) // 3 second timeout
