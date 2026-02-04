@@ -1088,9 +1088,7 @@
         const LOCAL_BACKEND_URL = 'http://localhost:3000';
         
         // Smart detection: try deployed first, fallback to local
-        let BACKEND_URL = DEPLOYED_BACKEND_URL !== 'https://wavy-backend-production.up.railway.app' 
-            ? DEPLOYED_BACKEND_URL 
-            : LOCAL_BACKEND_URL;
+       let BACKEND_URL = DEPLOYED_BACKEND_URL;
         
         // Data Management
         let entries = JSON.parse(localStorage.getItem('wavyEntries') || '[]');
