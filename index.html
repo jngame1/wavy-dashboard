@@ -50,7 +50,6 @@
             overflow-x: hidden;
         }
 
-        /* Animated gradient background */
         body::before {
             content: '';
             position: fixed;
@@ -78,7 +77,6 @@
             margin: 0 auto;
         }
 
-        /* Header */
         .app-header {
             margin-bottom: 40px;
             padding-bottom: 24px;
@@ -161,7 +159,6 @@
             50% { opacity: 0.5; }
         }
 
-        /* Stats Grid */
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
@@ -255,7 +252,6 @@
             color: var(--wavy-danger);
         }
 
-        /* Main Layout */
         .main-layout {
             display: grid;
             grid-template-columns: 1fr 380px;
@@ -269,7 +265,6 @@
             }
         }
 
-        /* Capture Panel */
         .capture-panel {
             background: var(--bg-glass);
             backdrop-filter: blur(20px);
@@ -292,7 +287,6 @@
             color: var(--text-primary);
         }
 
-        /* Template Pills */
         .template-pills {
             display: flex;
             gap: 8px;
@@ -325,7 +319,6 @@
             box-shadow: var(--shadow-glow);
         }
 
-        /* Form Inputs */
         .form-group {
             margin-bottom: 16px;
         }
@@ -376,7 +369,6 @@
             gap: 12px;
         }
 
-        /* Buttons */
         .btn {
             padding: 14px 24px;
             border: none;
@@ -436,7 +428,6 @@
             width: 100%;
         }
 
-        /* Analytics Panel */
         .analytics-panel {
             position: sticky;
             top: 24px;
@@ -506,7 +497,6 @@
             color: var(--text-secondary);
         }
 
-        /* Entries Timeline */
         .entries-section {
             margin-top: 32px;
         }
@@ -637,7 +627,6 @@
         .roi-medium { color: var(--wavy-warning); }
         .roi-low { color: var(--text-tertiary); }
 
-        /* Empty State */
         .empty-state {
             text-align: center;
             padding: 60px 20px;
@@ -650,7 +639,6 @@
             opacity: 0.3;
         }
 
-        /* Toast Notifications */
         .toast {
             position: fixed;
             bottom: 24px;
@@ -689,7 +677,6 @@
             }
         }
 
-        /* Modal */
         .modal {
             position: fixed;
             top: 0;
@@ -814,7 +801,6 @@
 </head>
 <body>
     <div class="app-container">
-        <!-- Header -->
         <header class="app-header">
             <div class="header-top">
                 <div class="brand">
@@ -832,7 +818,6 @@
             </div>
         </header>
 
-        <!-- Stats Dashboard -->
         <div class="stats-grid">
             <div class="stat-card">
                 <div class="stat-header">
@@ -881,17 +866,13 @@
             </div>
         </div>
 
-        <!-- Main Layout -->
         <div class="main-layout">
-            <!-- Left: Capture & Entries -->
             <div>
-                <!-- Capture Panel -->
                 <div class="capture-panel">
                     <div class="panel-header">
                         <h2 class="panel-title">Quick Capture</h2>
                     </div>
 
-                    <!-- Template Selection -->
                     <div class="template-pills">
                         <div class="template-pill active" data-template="quick">⚡ Quick</div>
                         <div class="template-pill" data-template="client">👤 Client</div>
@@ -957,7 +938,6 @@
                     </form>
                 </div>
 
-                <!-- Entries Timeline -->
                 <div class="entries-section">
                     <div class="section-header">
                         <h2 class="section-title">Activity Timeline</h2>
@@ -972,15 +952,12 @@
                 </div>
             </div>
 
-            <!-- Right: Analytics -->
             <div class="analytics-panel">
-                <!-- Project Breakdown -->
                 <div class="analytics-card">
                     <h3 class="panel-title" style="margin-bottom: 20px;">Project Breakdown</h3>
                     <div id="projectBreakdown"></div>
                 </div>
 
-                <!-- Weekly Progress -->
                 <div class="analytics-card">
                     <h3 class="panel-title" style="margin-bottom: 20px;">Weekly Progress</h3>
                     <div class="chart-container">
@@ -994,7 +971,6 @@
                     </div>
                 </div>
 
-                <!-- Quick Actions -->
                 <div class="analytics-card">
                     <h3 class="panel-title" style="margin-bottom: 16px;">Actions</h3>
                     <button class="btn btn-secondary btn-block" style="margin-bottom: 8px;" onclick="exportData()">📊 Export Data</button>
@@ -1004,7 +980,6 @@
         </div>
     </div>
 
-    <!-- Setup Modal -->
     <div class="modal" id="setupModal">
         <div class="modal-content">
             <div class="modal-header">
@@ -1078,59 +1053,15 @@
         </div>
     </div>
 
-    <!-- Toast -->
     <div class="toast" id="toast"></div>
 
     <script>
-        // Backend Configuration - Auto-detect or use custom
-        // Change this after deploying to Railway:
-        const DEPLOYED_BACKEND_URL = 'https://wavy-backend-production.up.railway.app'; // e.g., 'https://wavy-backend-production.up.railway.app'
-        const LOCAL_BACKEND_URL = 'http://localhost:3000';
-        
-        // Smart detection: try deployed first, fallback to local
-       let BACKEND_URL = DEPLOYED_BACKEND_URL;
+        // Backend URL - hardcoded Railway deployment
+        const BACKEND_URL = 'https://wavy-backend-production.up.railway.app';
         
         // Data Management
         let entries = JSON.parse(localStorage.getItem('wavyEntries') || '[]');
         let notionConfig = JSON.parse(localStorage.getItem('wavyNotionConfig') || '{}');
-
-        // Check backend connection and auto-switch if needed
-        async function checkBackendConnection() {
-            // Try deployed URL first if configured
-            if (DEPLOYED_BACKEND_URL !== 'https://wavy-backend-production.up.railway.app') {
-                try {
-                    const response = await fetch(`${DEPLOYED_BACKEND_URL}/api/health`, {
-                        signal: AbortSignal.timeout(3000) // 3 second timeout
-                    });
-                    const data = await response.json();
-                    if (data.status === 'ok') {
-                        BACKEND_URL = DEPLOYED_BACKEND_URL;
-                        console.log('✅ Connected to deployed backend:', DEPLOYED_BACKEND_URL);
-                        return true;
-                    }
-                } catch (error) {
-                    console.log('⚠️ Deployed backend not reachable, trying local...');
-                }
-            }
-            
-            // Fallback to local
-            try {
-                const response = await fetch(`${LOCAL_BACKEND_URL}/api/health`, {
-                    signal: AbortSignal.timeout(2000)
-                });
-                const data = await response.json();
-                if (data.status === 'ok') {
-                    BACKEND_URL = LOCAL_BACKEND_URL;
-                    console.log('✅ Connected to local backend:', LOCAL_BACKEND_URL);
-                    return true;
-                }
-            } catch (error) {
-                console.error('❌ No backend connection available');
-                return false;
-            }
-            
-            return false;
-        }
 
         // Template System
         const templates = {
@@ -1233,23 +1164,15 @@
         function calculateROI(entry) {
             let score = 0;
             
-            // Priority weight
             const priorityWeights = { high: 3, medium: 2, low: 1 };
             score += priorityWeights[entry.priority] || 0;
             
-            // Completion bonus
             if (entry.status === 'complete') score += 2;
-            
-            // Client work bonus
             if (entry.project === 'orderflow' || entry.project === 'clientacq') score += 2;
-            
-            // Outcome specified bonus
             if (entry.outcome) score += 1;
-            
-            // Time efficiency (inverse - less time is better for same priority)
             if (entry.timeSpent > 0 && entry.timeSpent < 60) score += 1;
             
-            return Math.min(score, 10); // Cap at 10
+            return Math.min(score, 10);
         }
 
         // Sync to Notion via Backend
@@ -1275,7 +1198,7 @@
                 }
             } catch (error) {
                 console.error('Notion sync error:', error);
-                showToast('Backend not running. Start server to sync.', 'error');
+                showToast('Cannot reach backend', 'error');
                 updateNotionStatus(false);
             }
         }
@@ -1307,7 +1230,6 @@
                 : '0';
             document.getElementById('roiScore').textContent = avgROI;
             
-            // Progress bar
             const completionRate = entries.length > 0 
                 ? Math.round((completed / entries.length) * 100) 
                 : 0;
@@ -1438,7 +1360,6 @@
                 return;
             }
             
-            // Test connection via backend
             try {
                 showToast('Testing connection...', 'info');
                 
@@ -1465,7 +1386,7 @@
                 }
             } catch (error) {
                 console.error('Connection test error:', error);
-                showToast('Backend server not running. Please start server first.', 'error');
+                showToast('Cannot reach backend', 'error');
                 updateNotionStatus(false);
             }
         }
@@ -1513,15 +1434,9 @@
             setTimeout(() => toast.classList.remove('show'), 3000);
         }
 
-        // Check backend and Notion connection on load
+        // Initialize
         (async function initializeApp() {
-            const backendAlive = await checkBackendConnection();
-            
-            if (!backendAlive) {
-                showToast('⚠️ Backend server not running. Start server to enable Notion sync.', 'error');
-                updateNotionStatus(false);
-            } else if (notionConfig.token && notionConfig.databaseId) {
-                // Test if previous config still works
+            if (notionConfig.token && notionConfig.databaseId) {
                 try {
                     const response = await fetch(`${BACKEND_URL}/api/notion/test`, {
                         method: 'POST',
