@@ -1,0 +1,1545 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wavy Automations | Command Center</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --wavy-primary: #0EA5E9;
+            --wavy-primary-dark: #0284C7;
+            --wavy-secondary: #06B6D4;
+            --wavy-accent: #22D3EE;
+            --wavy-success: #10B981;
+            --wavy-warning: #F59E0B;
+            --wavy-danger: #EF4444;
+            --wavy-purple: #8B5CF6;
+            
+            --bg-primary: #0A0E1A;
+            --bg-secondary: #0F1419;
+            --bg-tertiary: #1A1F2E;
+            --bg-glass: rgba(255, 255, 255, 0.03);
+            --bg-glass-hover: rgba(255, 255, 255, 0.06);
+            
+            --text-primary: #F8FAFC;
+            --text-secondary: #94A3B8;
+            --text-tertiary: #64748B;
+            
+            --border-subtle: rgba(255, 255, 255, 0.06);
+            --border-medium: rgba(255, 255, 255, 0.1);
+            
+            --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
+            --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.4);
+            --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.5);
+            --shadow-glow: 0 0 20px rgba(14, 165, 233, 0.3);
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* Animated gradient background */
+        body::before {
+            content: '';
+            position: fixed;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle at 50% 50%, rgba(14, 165, 233, 0.08) 0%, transparent 50%);
+            animation: rotate 30s linear infinite;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .app-container {
+            position: relative;
+            z-index: 1;
+            min-height: 100vh;
+            padding: 24px;
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        /* Header */
+        .app-header {
+            margin-bottom: 40px;
+            padding-bottom: 24px;
+            border-bottom: 1px solid var(--border-subtle);
+            backdrop-filter: blur(20px);
+        }
+
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .brand-icon {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, var(--wavy-primary), var(--wavy-secondary));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            box-shadow: var(--shadow-glow);
+        }
+
+        .brand-text h1 {
+            font-size: 28px;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            background: linear-gradient(135deg, var(--wavy-primary), var(--wavy-accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .brand-text .tagline {
+            font-size: 13px;
+            color: var(--text-tertiary);
+            font-weight: 500;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .notion-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 16px;
+            background: var(--bg-glass);
+            border: 1px solid var(--border-subtle);
+            border-radius: 8px;
+            font-size: 13px;
+            backdrop-filter: blur(10px);
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--wavy-success);
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        .status-dot.disconnected {
+            background: var(--wavy-danger);
+            animation: none;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+
+        .stat-card {
+            background: var(--bg-glass);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border-subtle);
+            border-radius: 16px;
+            padding: 24px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--wavy-primary), var(--wavy-secondary));
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .stat-card:hover {
+            background: var(--bg-glass-hover);
+            border-color: var(--border-medium);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .stat-card:hover::before {
+            opacity: 1;
+        }
+
+        .stat-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .stat-label {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .stat-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+        }
+
+        .stat-value {
+            font-size: 36px;
+            font-weight: 800;
+            line-height: 1;
+            margin-bottom: 8px;
+            background: linear-gradient(135deg, var(--text-primary), var(--text-secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .stat-change {
+            font-size: 12px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .stat-change.positive {
+            color: var(--wavy-success);
+        }
+
+        .stat-change.negative {
+            color: var(--wavy-danger);
+        }
+
+        /* Main Layout */
+        .main-layout {
+            display: grid;
+            grid-template-columns: 1fr 380px;
+            gap: 24px;
+            align-items: start;
+        }
+
+        @media (max-width: 1200px) {
+            .main-layout {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Capture Panel */
+        .capture-panel {
+            background: var(--bg-glass);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border-subtle);
+            border-radius: 16px;
+            padding: 28px;
+            box-shadow: var(--shadow-md);
+        }
+
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .panel-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        /* Template Pills */
+        .template-pills {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+        }
+
+        .template-pill {
+            padding: 8px 16px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-subtle);
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+
+        .template-pill:hover {
+            border-color: var(--wavy-primary);
+            color: var(--text-primary);
+        }
+
+        .template-pill.active {
+            background: linear-gradient(135deg, var(--wavy-primary), var(--wavy-secondary));
+            border-color: transparent;
+            color: white;
+            box-shadow: var(--shadow-glow);
+        }
+
+        /* Form Inputs */
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        input, textarea, select {
+            width: 100%;
+            padding: 14px 16px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-subtle);
+            border-radius: 10px;
+            color: var(--text-primary);
+            font-size: 15px;
+            font-family: inherit;
+            transition: all 0.2s;
+        }
+
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: var(--wavy-primary);
+            background: var(--bg-tertiary);
+            box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.1);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .input-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .input-row-3 {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 12px;
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 14px 24px;
+            border: none;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-family: inherit;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        .btn:active::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--wavy-primary), var(--wavy-secondary));
+            color: white;
+            box-shadow: var(--shadow-glow);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(14, 165, 233, 0.4);
+        }
+
+        .btn-secondary {
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            border: 1px solid var(--border-subtle);
+        }
+
+        .btn-secondary:hover {
+            background: var(--bg-tertiary);
+            border-color: var(--border-medium);
+        }
+
+        .btn-block {
+            width: 100%;
+        }
+
+        /* Analytics Panel */
+        .analytics-panel {
+            position: sticky;
+            top: 24px;
+        }
+
+        .analytics-card {
+            background: var(--bg-glass);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border-subtle);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 16px;
+            box-shadow: var(--shadow-md);
+        }
+
+        .chart-container {
+            margin-top: 20px;
+        }
+
+        .progress-bar {
+            background: var(--bg-secondary);
+            height: 8px;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 16px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--wavy-primary), var(--wavy-secondary));
+            border-radius: 4px;
+            transition: width 0.5s ease;
+        }
+
+        .progress-label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            color: var(--text-tertiary);
+            margin-bottom: 6px;
+        }
+
+        .project-breakdown {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .project-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            border-left: 3px solid var(--wavy-primary);
+        }
+
+        .project-name {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .project-time {
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        /* Entries Timeline */
+        .entries-section {
+            margin-top: 32px;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .section-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .filter-tabs {
+            display: flex;
+            gap: 8px;
+        }
+
+        .filter-tab {
+            padding: 6px 12px;
+            background: var(--bg-glass);
+            border: 1px solid var(--border-subtle);
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .filter-tab:hover, .filter-tab.active {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+            border-color: var(--wavy-primary);
+        }
+
+        .entry-card {
+            background: var(--bg-glass);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border-subtle);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 12px;
+            transition: all 0.2s;
+            border-left: 3px solid var(--wavy-primary);
+        }
+
+        .entry-card:hover {
+            background: var(--bg-glass-hover);
+            border-color: var(--border-medium);
+            transform: translateX(4px);
+        }
+
+        .entry-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 12px;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .entry-tags {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
+        .tag {
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        .tag-orderflow { background: rgba(59, 130, 246, 0.2); color: #60A5FA; border: 1px solid rgba(59, 130, 246, 0.3); }
+        .tag-dmbot { background: rgba(139, 92, 246, 0.2); color: #A78BFA; border: 1px solid rgba(139, 92, 246, 0.3); }
+        .tag-clientacq { background: rgba(16, 185, 129, 0.2); color: #34D399; border: 1px solid rgba(16, 185, 129, 0.3); }
+        .tag-nfcu { background: rgba(245, 158, 11, 0.2); color: #FBBF24; border: 1px solid rgba(245, 158, 11, 0.3); }
+        .tag-other { background: rgba(107, 114, 128, 0.2); color: #9CA3AF; border: 1px solid rgba(107, 114, 128, 0.3); }
+
+        .tag-high { background: rgba(239, 68, 68, 0.2); color: #F87171; border: 1px solid rgba(239, 68, 68, 0.3); }
+        .tag-medium { background: rgba(245, 158, 11, 0.2); color: #FBBF24; border: 1px solid rgba(245, 158, 11, 0.3); }
+        .tag-low { background: rgba(59, 130, 246, 0.2); color: #60A5FA; border: 1px solid rgba(59, 130, 246, 0.3); }
+
+        .entry-meta {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 12px;
+            color: var(--text-tertiary);
+        }
+
+        .entry-content {
+            color: var(--text-primary);
+            font-size: 14px;
+            line-height: 1.6;
+            margin-bottom: 12px;
+        }
+
+        .entry-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 12px;
+            border-top: 1px solid var(--border-subtle);
+            font-size: 12px;
+            color: var(--text-tertiary);
+        }
+
+        .roi-indicator {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 8px;
+            background: var(--bg-secondary);
+            border-radius: 6px;
+            font-weight: 600;
+        }
+
+        .roi-high { color: var(--wavy-success); }
+        .roi-medium { color: var(--wavy-warning); }
+        .roi-low { color: var(--text-tertiary); }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-tertiary);
+        }
+
+        .empty-icon {
+            font-size: 64px;
+            margin-bottom: 16px;
+            opacity: 0.3;
+        }
+
+        /* Toast Notifications */
+        .toast {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            background: var(--bg-tertiary);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border-medium);
+            color: var(--text-primary);
+            padding: 16px 24px;
+            border-radius: 12px;
+            box-shadow: var(--shadow-lg);
+            display: none;
+            z-index: 1000;
+            min-width: 300px;
+        }
+
+        .toast.show {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            animation: slideIn 0.3s ease;
+        }
+
+        .toast.success { border-left: 3px solid var(--wavy-success); }
+        .toast.error { border-left: 3px solid var(--wavy-danger); }
+        .toast.info { border-left: 3px solid var(--wavy-primary); }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        /* Modal */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            padding: 24px;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-medium);
+            border-radius: 16px;
+            padding: 32px;
+            max-width: 600px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .modal-title {
+            font-size: 24px;
+            font-weight: 700;
+        }
+
+        .modal-close {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            background: var(--bg-tertiary);
+            border: none;
+            color: var(--text-secondary);
+            font-size: 20px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .modal-close:hover {
+            background: var(--bg-glass);
+            color: var(--text-primary);
+        }
+
+        .setup-step {
+            background: var(--bg-glass);
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 16px;
+            border-left: 3px solid var(--wavy-primary);
+        }
+
+        .step-number {
+            display: inline-block;
+            width: 28px;
+            height: 28px;
+            background: linear-gradient(135deg, var(--wavy-primary), var(--wavy-secondary));
+            border-radius: 50%;
+            text-align: center;
+            line-height: 28px;
+            font-weight: 700;
+            font-size: 14px;
+            margin-right: 12px;
+        }
+
+        code {
+            background: var(--bg-primary);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            color: var(--wavy-accent);
+        }
+
+        pre {
+            background: var(--bg-primary);
+            padding: 16px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 12px 0;
+            border: 1px solid var(--border-subtle);
+        }
+
+        @media (max-width: 768px) {
+            .app-container {
+                padding: 16px;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .input-row, .input-row-3 {
+                grid-template-columns: 1fr;
+            }
+
+            .brand-text h1 {
+                font-size: 22px;
+            }
+
+            .stat-value {
+                font-size: 28px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="app-header">
+            <div class="header-top">
+                <div class="brand">
+                    <div class="brand-icon">⚡</div>
+                    <div class="brand-text">
+                        <h1>Wavy Automations</h1>
+                        <div class="tagline">Command Center</div>
+                    </div>
+                </div>
+                <div class="notion-status" id="notionStatus">
+                    <div class="status-dot disconnected" id="statusDot"></div>
+                    <span id="statusText">Not Connected</span>
+                    <button class="btn btn-secondary" style="padding: 8px 16px; margin-left: 8px;" onclick="openSetupModal()">Setup</button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Stats Dashboard -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-header">
+                    <span class="stat-label">Total Time</span>
+                    <div class="stat-icon" style="background: rgba(14, 165, 233, 0.2); color: var(--wavy-primary);">⏱️</div>
+                </div>
+                <div class="stat-value" id="totalTime">0h</div>
+                <div class="stat-change positive">
+                    <span>↑ 12%</span>
+                    <span style="color: var(--text-tertiary);">vs last week</span>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-header">
+                    <span class="stat-label">Completed</span>
+                    <div class="stat-icon" style="background: rgba(16, 185, 129, 0.2); color: var(--wavy-success);">✓</div>
+                </div>
+                <div class="stat-value" id="completedTasks">0</div>
+                <div class="stat-change positive">
+                    <span>↑ 8 tasks</span>
+                    <span style="color: var(--text-tertiary);">this week</span>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-header">
+                    <span class="stat-label">Velocity</span>
+                    <div class="stat-icon" style="background: rgba(139, 92, 246, 0.2); color: var(--wavy-purple);">📈</div>
+                </div>
+                <div class="stat-value" id="velocity">0</div>
+                <div class="stat-change">
+                    <span style="color: var(--text-tertiary);">tasks/day</span>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-header">
+                    <span class="stat-label">ROI Score</span>
+                    <div class="stat-icon" style="background: rgba(245, 158, 11, 0.2); color: var(--wavy-warning);">💎</div>
+                </div>
+                <div class="stat-value" id="roiScore">--</div>
+                <div class="stat-change">
+                    <span style="color: var(--text-tertiary);">efficiency rating</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Layout -->
+        <div class="main-layout">
+            <!-- Left: Capture & Entries -->
+            <div>
+                <!-- Capture Panel -->
+                <div class="capture-panel">
+                    <div class="panel-header">
+                        <h2 class="panel-title">Quick Capture</h2>
+                    </div>
+
+                    <!-- Template Selection -->
+                    <div class="template-pills">
+                        <div class="template-pill active" data-template="quick">⚡ Quick</div>
+                        <div class="template-pill" data-template="client">👤 Client</div>
+                        <div class="template-pill" data-template="dev">💻 Dev</div>
+                        <div class="template-pill" data-template="outreach">📧 Outreach</div>
+                        <div class="template-pill" data-template="win">🏆 Win</div>
+                    </div>
+
+                    <form id="captureForm">
+                        <div class="form-group">
+                            <label class="form-label">Project</label>
+                            <select id="project" required>
+                                <option value="">Select Project</option>
+                                <option value="orderflow">OrderFlow</option>
+                                <option value="dmbot">DM Bot</option>
+                                <option value="clientacq">Client Acquisition</option>
+                                <option value="nfcu">NFCU</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Notes</label>
+                            <textarea id="notes" placeholder="What did you accomplish?" required></textarea>
+                        </div>
+
+                        <div id="dynamicFields"></div>
+
+                        <div class="input-row-3">
+                            <div class="form-group">
+                                <label class="form-label">Time (min)</label>
+                                <input type="number" id="timeSpent" placeholder="30" min="0" step="5">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Priority</label>
+                                <select id="priority" required>
+                                    <option value="high">High</option>
+                                    <option value="medium">Medium</option>
+                                    <option value="low">Low</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Status</label>
+                                <select id="status" required>
+                                    <option value="complete">Complete</option>
+                                    <option value="inprogress">In Progress</option>
+                                    <option value="blocked">Blocked</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Expected Outcome / ROI</label>
+                            <input type="text" id="outcome" placeholder="e.g., New client acquisition, system optimization">
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Next Step</label>
+                            <input type="text" id="nextStep" placeholder="What's next?">
+                        </div>
+
+                        <button type="submit" class="btn btn-primary btn-block">Log Entry</button>
+                    </form>
+                </div>
+
+                <!-- Entries Timeline -->
+                <div class="entries-section">
+                    <div class="section-header">
+                        <h2 class="section-title">Activity Timeline</h2>
+                        <div class="filter-tabs">
+                            <div class="filter-tab active" data-filter="all">All</div>
+                            <div class="filter-tab" data-filter="today">Today</div>
+                            <div class="filter-tab" data-filter="week">Week</div>
+                            <div class="filter-tab" data-filter="wins">Wins</div>
+                        </div>
+                    </div>
+                    <div id="entriesContainer"></div>
+                </div>
+            </div>
+
+            <!-- Right: Analytics -->
+            <div class="analytics-panel">
+                <!-- Project Breakdown -->
+                <div class="analytics-card">
+                    <h3 class="panel-title" style="margin-bottom: 20px;">Project Breakdown</h3>
+                    <div id="projectBreakdown"></div>
+                </div>
+
+                <!-- Weekly Progress -->
+                <div class="analytics-card">
+                    <h3 class="panel-title" style="margin-bottom: 20px;">Weekly Progress</h3>
+                    <div class="chart-container">
+                        <div class="progress-label">
+                            <span>Completion Rate</span>
+                            <span id="completionRate">0%</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="analytics-card">
+                    <h3 class="panel-title" style="margin-bottom: 16px;">Actions</h3>
+                    <button class="btn btn-secondary btn-block" style="margin-bottom: 8px;" onclick="exportData()">📊 Export Data</button>
+                    <button class="btn btn-secondary btn-block" onclick="clearData()">🗑️ Clear All</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Setup Modal -->
+    <div class="modal" id="setupModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Notion Integration Setup</h2>
+                <button class="modal-close" onclick="closeSetupModal()">×</button>
+            </div>
+            
+            <div class="setup-step">
+                <h3><span class="step-number">1</span>Create Notion Integration</h3>
+                <p style="margin: 12px 0 12px 40px; color: var(--text-secondary);">
+                    Go to <a href="https://www.notion.so/my-integrations" target="_blank" style="color: var(--wavy-primary);">notion.so/my-integrations</a>
+                </p>
+                <p style="margin: 0 0 12px 40px; color: var(--text-secondary);">
+                    Click "New integration" → Name it "Wavy Command Center" → Submit
+                </p>
+                <p style="margin: 0 0 0 40px; color: var(--text-secondary);">
+                    Copy the "Internal Integration Token"
+                </p>
+            </div>
+
+            <div class="setup-step">
+                <h3><span class="step-number">2</span>Create Notion Database</h3>
+                <p style="margin: 12px 0 12px 40px; color: var(--text-secondary);">
+                    Open Notion → Create a new page → Type "/database" → Select "Table - Inline"
+                </p>
+                <p style="margin: 12px 0 0 40px; color: var(--text-secondary);">
+                    Add these columns (properties):
+                </p>
+                <ul style="margin: 8px 0 0 60px; color: var(--text-tertiary); font-size: 13px;">
+                    <li><strong>Task</strong> (Title) - already exists</li>
+                    <li><strong>Project</strong> (Select) - OrderFlow, DM Bot, Client Acquisition, NFCU, Other</li>
+                    <li><strong>Status</strong> (Select) - Complete, In Progress, Blocked</li>
+                    <li><strong>Priority</strong> (Select) - High, Medium, Low</li>
+                    <li><strong>Time Spent</strong> (Number)</li>
+                    <li><strong>Outcome</strong> (Text)</li>
+                    <li><strong>Next Step</strong> (Text)</li>
+                    <li><strong>Date</strong> (Date)</li>
+                </ul>
+            </div>
+
+            <div class="setup-step">
+                <h3><span class="step-number">3</span>Connect Integration to Database</h3>
+                <p style="margin: 12px 0 0 40px; color: var(--text-secondary);">
+                    Click "..." menu on your database → "Add connections" → Select "Wavy Command Center"
+                </p>
+            </div>
+
+            <div class="setup-step">
+                <h3><span class="step-number">4</span>Get Database ID</h3>
+                <p style="margin: 12px 0 0 40px; color: var(--text-secondary);">
+                    Copy the database URL. It looks like:<br>
+                    <code style="display: block; margin: 8px 0; word-break: break-all;">
+                        https://notion.so/workspace/[DATABASE_ID]?v=[VIEW_ID]
+                    </code>
+                    The DATABASE_ID is the 32-character code after your workspace name
+                </p>
+            </div>
+
+            <div class="setup-step">
+                <h3><span class="step-number">5</span>Enter Credentials</h3>
+                <div class="form-group" style="margin-top: 16px;">
+                    <label class="form-label">Notion Integration Token</label>
+                    <input type="password" id="notionToken" placeholder="secret_...">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Database ID</label>
+                    <input type="text" id="databaseId" placeholder="32-character ID">
+                </div>
+                <button class="btn btn-primary btn-block" onclick="saveNotionConfig()">Connect to Notion</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast" id="toast"></div>
+
+    <script>
+        // Backend Configuration - Auto-detect or use custom
+        // Change this after deploying to Railway:
+        const DEPLOYED_BACKEND_URL = 'REPLACE_WITH_YOUR_RAILWAY_URL'; // e.g., 'https://wavy-backend-production.up.railway.app'
+        const LOCAL_BACKEND_URL = 'http://localhost:3000';
+        
+        // Smart detection: try deployed first, fallback to local
+        let BACKEND_URL = DEPLOYED_BACKEND_URL !== 'REPLACE_WITH_YOUR_RAILWAY_URL' 
+            ? DEPLOYED_BACKEND_URL 
+            : LOCAL_BACKEND_URL;
+        
+        // Data Management
+        let entries = JSON.parse(localStorage.getItem('wavyEntries') || '[]');
+        let notionConfig = JSON.parse(localStorage.getItem('wavyNotionConfig') || '{}');
+
+        // Check backend connection and auto-switch if needed
+        async function checkBackendConnection() {
+            // Try deployed URL first if configured
+            if (DEPLOYED_BACKEND_URL !== 'REPLACE_WITH_YOUR_RAILWAY_URL') {
+                try {
+                    const response = await fetch(`${DEPLOYED_BACKEND_URL}/api/health`, {
+                        signal: AbortSignal.timeout(3000) // 3 second timeout
+                    });
+                    const data = await response.json();
+                    if (data.status === 'ok') {
+                        BACKEND_URL = DEPLOYED_BACKEND_URL;
+                        console.log('✅ Connected to deployed backend:', DEPLOYED_BACKEND_URL);
+                        return true;
+                    }
+                } catch (error) {
+                    console.log('⚠️ Deployed backend not reachable, trying local...');
+                }
+            }
+            
+            // Fallback to local
+            try {
+                const response = await fetch(`${LOCAL_BACKEND_URL}/api/health`, {
+                    signal: AbortSignal.timeout(2000)
+                });
+                const data = await response.json();
+                if (data.status === 'ok') {
+                    BACKEND_URL = LOCAL_BACKEND_URL;
+                    console.log('✅ Connected to local backend:', LOCAL_BACKEND_URL);
+                    return true;
+                }
+            } catch (error) {
+                console.error('❌ No backend connection available');
+                return false;
+            }
+            
+            return false;
+        }
+
+        // Template System
+        const templates = {
+            quick: {},
+            client: {
+                fields: [
+                    { id: 'clientName', label: 'Client Name', type: 'text' },
+                    { id: 'deliverable', label: 'Deliverable', type: 'text' }
+                ]
+            },
+            dev: {
+                fields: [
+                    { id: 'feature', label: 'Feature Built', type: 'text' },
+                    { id: 'blocker', label: 'Blockers', type: 'text' }
+                ]
+            },
+            outreach: {
+                fields: [
+                    { id: 'recipient', label: 'Who', type: 'text' },
+                    { id: 'response', label: 'Response', type: 'text' }
+                ]
+            },
+            win: {
+                fields: [
+                    { id: 'achievement', label: 'Achievement', type: 'text' },
+                    { id: 'impact', label: 'Impact', type: 'text' }
+                ]
+            }
+        };
+
+        // Template Selection
+        document.querySelectorAll('.template-pill').forEach(pill => {
+            pill.addEventListener('click', () => {
+                document.querySelectorAll('.template-pill').forEach(p => p.classList.remove('active'));
+                pill.classList.add('active');
+                
+                const template = pill.dataset.template;
+                const dynamicFields = document.getElementById('dynamicFields');
+                dynamicFields.innerHTML = '';
+                
+                if (templates[template].fields) {
+                    templates[template].fields.forEach(field => {
+                        const group = document.createElement('div');
+                        group.className = 'form-group';
+                        group.innerHTML = `
+                            <label class="form-label">${field.label}</label>
+                            <input type="${field.type}" id="dynamic_${field.id}" placeholder="${field.label}">
+                        `;
+                        dynamicFields.appendChild(group);
+                    });
+                }
+            });
+        });
+
+        // Form Submission
+        document.getElementById('captureForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const entry = {
+                id: Date.now(),
+                timestamp: new Date().toISOString(),
+                project: document.getElementById('project').value,
+                notes: document.getElementById('notes').value,
+                timeSpent: parseInt(document.getElementById('timeSpent').value) || 0,
+                priority: document.getElementById('priority').value,
+                status: document.getElementById('status').value,
+                outcome: document.getElementById('outcome').value,
+                nextStep: document.getElementById('nextStep').value,
+                template: document.querySelector('.template-pill.active').dataset.template,
+                dynamicData: {}
+            };
+
+            // Capture dynamic fields
+            document.querySelectorAll('#dynamicFields input').forEach(input => {
+                const key = input.id.replace('dynamic_', '');
+                entry.dynamicData[key] = input.value;
+            });
+
+            // Calculate ROI score
+            entry.roiScore = calculateROI(entry);
+
+            entries.unshift(entry);
+            localStorage.setItem('wavyEntries', JSON.stringify(entries));
+            
+            // Sync to Notion
+            if (notionConfig.token && notionConfig.databaseId) {
+                await syncToNotion(entry);
+            }
+            
+            showToast('Entry logged successfully! 🚀', 'success');
+            document.getElementById('captureForm').reset();
+            document.getElementById('dynamicFields').innerHTML = '';
+            document.querySelectorAll('.template-pill').forEach(p => p.classList.remove('active'));
+            document.querySelector('.template-pill[data-template="quick"]').classList.add('active');
+            
+            render();
+        });
+
+        // Calculate ROI Score
+        function calculateROI(entry) {
+            let score = 0;
+            
+            // Priority weight
+            const priorityWeights = { high: 3, medium: 2, low: 1 };
+            score += priorityWeights[entry.priority] || 0;
+            
+            // Completion bonus
+            if (entry.status === 'complete') score += 2;
+            
+            // Client work bonus
+            if (entry.project === 'orderflow' || entry.project === 'clientacq') score += 2;
+            
+            // Outcome specified bonus
+            if (entry.outcome) score += 1;
+            
+            // Time efficiency (inverse - less time is better for same priority)
+            if (entry.timeSpent > 0 && entry.timeSpent < 60) score += 1;
+            
+            return Math.min(score, 10); // Cap at 10
+        }
+
+        // Sync to Notion via Backend
+        async function syncToNotion(entry) {
+            try {
+                const response = await fetch(`${BACKEND_URL}/api/notion/create`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ entry })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showToast('Synced to Notion ✓', 'success');
+                    updateNotionStatus(true);
+                } else {
+                    console.error('Notion sync failed:', data.error);
+                    showToast(`Sync failed: ${data.error}`, 'error');
+                    updateNotionStatus(false);
+                }
+            } catch (error) {
+                console.error('Notion sync error:', error);
+                showToast('Backend not running. Start server to sync.', 'error');
+                updateNotionStatus(false);
+            }
+        }
+
+        // Render Everything
+        function render() {
+            renderStats();
+            renderEntries();
+            renderProjectBreakdown();
+        }
+
+        // Render Stats
+        function renderStats() {
+            const now = new Date();
+            const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+            const weekAgo = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
+            
+            const weekEntries = entries.filter(e => new Date(e.timestamp) >= weekAgo);
+            const completed = entries.filter(e => e.status === 'complete').length;
+            const totalMinutes = entries.reduce((sum, e) => sum + (e.timeSpent || 0), 0);
+            const avgROI = entries.length > 0 
+                ? (entries.reduce((sum, e) => sum + (e.roiScore || 0), 0) / entries.length).toFixed(1)
+                : '--';
+            
+            document.getElementById('totalTime').textContent = `${Math.round(totalMinutes / 60)}h`;
+            document.getElementById('completedTasks').textContent = completed;
+            document.getElementById('velocity').textContent = weekEntries.length > 0 
+                ? (weekEntries.length / 7).toFixed(1) 
+                : '0';
+            document.getElementById('roiScore').textContent = avgROI;
+            
+            // Progress bar
+            const completionRate = entries.length > 0 
+                ? Math.round((completed / entries.length) * 100) 
+                : 0;
+            document.getElementById('completionRate').textContent = `${completionRate}%`;
+            document.getElementById('progressFill').style.width = `${completionRate}%`;
+        }
+
+        // Render Entries
+        function renderEntries(filter = 'all') {
+            const container = document.getElementById('entriesContainer');
+            let filtered = [...entries];
+            
+            const now = new Date();
+            const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+            const weekAgo = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
+            
+            if (filter === 'today') {
+                filtered = entries.filter(e => new Date(e.timestamp) >= today);
+            } else if (filter === 'week') {
+                filtered = entries.filter(e => new Date(e.timestamp) >= weekAgo);
+            } else if (filter === 'wins') {
+                filtered = entries.filter(e => e.template === 'win');
+            }
+            
+            if (filtered.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">📊</div>
+                        <p>No entries yet. Start logging your work!</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = filtered.map(entry => {
+                const date = new Date(entry.timestamp);
+                const roiClass = entry.roiScore >= 7 ? 'roi-high' : entry.roiScore >= 4 ? 'roi-medium' : 'roi-low';
+                
+                return `
+                    <div class="entry-card">
+                        <div class="entry-header">
+                            <div class="entry-tags">
+                                <span class="tag tag-${entry.project}">${entry.project}</span>
+                                <span class="tag tag-${entry.priority}">${entry.priority}</span>
+                                ${entry.status === 'complete' ? '<span class="tag" style="background: rgba(16, 185, 129, 0.2); color: #34D399; border: 1px solid rgba(16, 185, 129, 0.3);">✓ Complete</span>' : ''}
+                            </div>
+                            <div class="entry-meta">
+                                <span>${date.toLocaleDateString()}</span>
+                                <span>${date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
+                            </div>
+                        </div>
+                        <div class="entry-content">${entry.notes}</div>
+                        ${Object.keys(entry.dynamicData).length > 0 ? 
+                            `<div style="font-size: 13px; color: var(--text-tertiary); margin-bottom: 12px;">
+                                ${Object.entries(entry.dynamicData).filter(([k,v]) => v).map(([k,v]) => `<strong>${k}:</strong> ${v}`).join(' • ')}
+                            </div>` : ''}
+                        <div class="entry-footer">
+                            <div>
+                                ${entry.timeSpent ? `⏱️ ${entry.timeSpent}m` : ''}
+                                ${entry.nextStep ? `<span style="margin-left: 12px;">→ ${entry.nextStep}</span>` : ''}
+                            </div>
+                            <div class="roi-indicator ${roiClass}">
+                                ROI: ${entry.roiScore || 0}/10
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Render Project Breakdown
+        function renderProjectBreakdown() {
+            const projects = {};
+            entries.forEach(e => {
+                if (!projects[e.project]) projects[e.project] = 0;
+                projects[e.project] += e.timeSpent || 0;
+            });
+            
+            const sorted = Object.entries(projects).sort((a, b) => b[1] - a[1]);
+            const container = document.getElementById('projectBreakdown');
+            
+            if (sorted.length === 0) {
+                container.innerHTML = '<div class="empty-state" style="padding: 20px;">No data yet</div>';
+                return;
+            }
+            
+            container.innerHTML = sorted.map(([project, minutes]) => {
+                const hours = (minutes / 60).toFixed(1);
+                return `
+                    <div class="project-item">
+                        <span class="project-name">${project.toUpperCase()}</span>
+                        <span class="project-time">${hours}h</span>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Filter Tabs
+        document.querySelectorAll('.filter-tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                renderEntries(tab.dataset.filter);
+            });
+        });
+
+        // Setup Modal
+        function openSetupModal() {
+            document.getElementById('setupModal').classList.add('show');
+            if (notionConfig.token) {
+                document.getElementById('notionToken').value = notionConfig.token;
+            }
+            if (notionConfig.databaseId) {
+                document.getElementById('databaseId').value = notionConfig.databaseId;
+            }
+        }
+
+        function closeSetupModal() {
+            document.getElementById('setupModal').classList.remove('show');
+        }
+
+        async function saveNotionConfig() {
+            const token = document.getElementById('notionToken').value.trim();
+            const databaseId = document.getElementById('databaseId').value.trim();
+            
+            if (!token || !databaseId) {
+                showToast('Please fill in all fields', 'error');
+                return;
+            }
+            
+            // Test connection via backend
+            try {
+                showToast('Testing connection...', 'info');
+                
+                const response = await fetch(`${BACKEND_URL}/api/notion/test`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ token, databaseId })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    notionConfig = { token, databaseId };
+                    localStorage.setItem('wavyNotionConfig', JSON.stringify(notionConfig));
+                    
+                    updateNotionStatus(true);
+                    showToast(`Connected to ${data.databaseName}! 🎉`, 'success');
+                    closeSetupModal();
+                } else {
+                    showToast(`Connection failed: ${data.error}`, 'error');
+                    updateNotionStatus(false);
+                }
+            } catch (error) {
+                console.error('Connection test error:', error);
+                showToast('Backend server not running. Please start server first.', 'error');
+                updateNotionStatus(false);
+            }
+        }
+
+        function updateNotionStatus(connected) {
+            const statusDot = document.getElementById('statusDot');
+            const statusText = document.getElementById('statusText');
+            
+            if (connected) {
+                statusDot.classList.remove('disconnected');
+                statusText.textContent = 'Connected to Notion';
+            } else {
+                statusDot.classList.add('disconnected');
+                statusText.textContent = 'Not Connected';
+            }
+        }
+
+        // Export Data
+        function exportData() {
+            const dataStr = JSON.stringify(entries, null, 2);
+            const dataBlob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(dataBlob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `wavy-data-${new Date().toISOString().split('T')[0]}.json`;
+            link.click();
+            showToast('Data exported! 📊', 'success');
+        }
+
+        // Clear Data
+        function clearData() {
+            if (confirm('Are you sure? This will delete all local entries.')) {
+                entries = [];
+                localStorage.setItem('wavyEntries', JSON.stringify(entries));
+                render();
+                showToast('All data cleared', 'info');
+            }
+        }
+
+        // Toast Notifications
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = `toast ${type} show`;
+            setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+
+        // Check backend and Notion connection on load
+        (async function initializeApp() {
+            const backendAlive = await checkBackendConnection();
+            
+            if (!backendAlive) {
+                showToast('⚠️ Backend server not running. Start server to enable Notion sync.', 'error');
+                updateNotionStatus(false);
+            } else if (notionConfig.token && notionConfig.databaseId) {
+                // Test if previous config still works
+                try {
+                    const response = await fetch(`${BACKEND_URL}/api/notion/test`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(notionConfig)
+                    });
+                    const data = await response.json();
+                    updateNotionStatus(data.success);
+                } catch (error) {
+                    updateNotionStatus(false);
+                }
+            }
+        })();
+
+        // Initial render
+        render();
+    </script>
+</body>
+</html>
